@@ -142,21 +142,7 @@ CREATE TABLE IF NOT EXISTS medications (
 );
 
 INSERT INTO medications (prescription, medication_name, dosage) VALUES
-(1, 'Lisinopril', '10mg'),
-(1, 'Metformin', '500mg'),
-(1, 'Atorvastatin', '20mg'),
-(1, 'Amlodipine', '5mg'),
-(1, 'Metoprolol', '25mg'),
-(1, 'Omeprazole', '20mg'),
-(1, 'Aspirin', '81mg'),
-(1, 'Simvastatin', '20mg'),
-(1, 'Losartan', '50mg'),
-(1, 'Albuterol', '90mcg'),
-(1, 'Hydrochlorothiazide', '25mg'),
-(1, 'Levothyroxine', '50mcg'),
-(1, 'Gabapentin', '300mg'),
-(1, 'Furosemide', '20mg'),
-(1, 'Fluticasone', '50mcg');
+
 
 CREATE TABLE IF NOT EXISTS medication_person_mapping (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -166,6 +152,10 @@ CREATE TABLE IF NOT EXISTS medication_person_mapping (
   FOREIGN KEY(medication_id) REFERENCES medications(id)
 );
 
+
+
+
+-- ================================================================
 
 
 -- appointments Table
