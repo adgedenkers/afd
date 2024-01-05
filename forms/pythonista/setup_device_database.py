@@ -10,7 +10,7 @@ def setup_database():
 
     # Create the 'people' table
     c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS people (id INTEGER PRIMARY KEY, name TEXT)''')
+    c.execute("setup_tables.sql")
 
     # Insert initial data if the table is empty
     c.execute("SELECT COUNT(*) FROM people")
