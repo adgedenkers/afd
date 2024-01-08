@@ -383,19 +383,19 @@ CREATE TABLE IF NOT EXISTS current_tasks(
 );
 
 CREATE TABLE IF NOT EXISTS tasks (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  task_name TEXT,
-  task_description TEXT,
-  assigned_to_id INTEGER,
-  due DATETIME,
-  frequency TEXT,
-  task_type_id INTEGER,
-  recurring INTEGER DEFAULT 0,
-  schedule TEXT,
-  set_ios_reminder INTEGER DEFAULT 0,
-  action_on_complete TEXT,
-  FOREIGN KEY(assigned_to_id) REFERENCES people(id),
-  FOREIGN KEY(task_type_id) REFERENCES task_types(id)
+  [id] INTEGER PRIMARY KEY AUTOINCREMENT,
+  [task_name] TEXT,
+  [task_description] TEXT,
+  [assigned_to_id] INTEGER,
+  [due] DATETIME,
+  [frequency] TEXT,
+  [task_type_id] INTEGER,
+  [recurring] INTEGER DEFAULT 0,
+  [schedule] TEXT,
+  [set_ios_reminder] INTEGER DEFAULT 0,
+  [action_on_complete] TEXT,
+  FOREIGN KEY([assigned_to_id]) REFERENCES people([id]),
+  FOREIGN KEY([task_type_id]) REFERENCES task_types([id])
 );
 
 CREATE TABLE IF NOT EXISTS task_views (
