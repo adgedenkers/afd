@@ -1,3 +1,13 @@
+'''
+File:      main.py
+Project:   pythonista
+Created:   2024-01-08
+Author:    Adge Denkers
+           https://github.com/adgedenkers/
+License:   MIT License
+'''
+
+
 import ui
 import time
 
