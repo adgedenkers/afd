@@ -20,21 +20,72 @@ CREATE TABLE IF NOT EXISTS people (
   [last_name] TEXT NOT NULL,
   [name_suffix] TEXT,
   [dob] TEXT,
-  [user_password] TEXT,
   [email] TEXT NOT NULL,
   [phone] TEXT,
   [address_id] INTEGER,
   [born_in_county] TEXT,
   [born_in_state] TEXT,
   [born_in_country] TEXT,
-  [created_at] TEXT DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')) NOT NULL
+  [created_at] TEXT DEFAULT (strftime('%Y-%m-%d %H:%M:%S.%f', 'now', 'localtime')) NOT NULL
+);
+
+CREATE TABLE events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  person_id INTEGER,
+  event_type TEXT,
+  event_subtype TEXT,
+  event_description TEXT,
+  event_data TEXT,
+  event_timestamp TEXT,
+  event_start_timestamp TEXT,
+  event_end_timestamp TEXT,
+  event_recurrence BOOLEAN DEFAULT 0,
+  FOREIGN KEY(person_id) REFERENCES people(id)
+);
+
+CREATE TABLE IF NOT EXISTS recurrences (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  event_id INTEGER,
+  recurrence_type_id INTEGER,           -- daily, weekly, monthly, yearly
+  interval INTEGER,                     -- how often - every 1 month, or every 3 weeks
+  week_days TEXT,                       -- if weekly, which days of the week
+  month_days TEXT,                      -- if monthly, which days of the month
+  month_weeks TEXT,                     -- if n-day-of-month
+  year_days TEXT,                       -- if yearly, which days of the year
+  end_type_id INTEGER,                  -- never, after, on
+  end_count INTEGER,                    -- if after, how many times
+  end_date TEXT,                        -- if on, what date
+  exclusions TEXT,                      -- dates to exclude ex, holidays
+  active INTEGER DEFAULT 1,             -- this event is activly recurring
+  recurrence_created_at TEXT,
+  recurrence_updated_at TEXT,
+  FOREIGN KEY(event_id) REFERENCES events(id),
+  FOREIGN KEY(recurrence_type_id) REFERENCES recurrence_types(id),
+  FOREIGN KEY(end_type) REFERENCES recurrence_end_types(end_type)
+);
+
+CREATE TABLE IF NOT EXISTS recurrence_types (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  recurrence_type_name TEXT,
+  recurrence_type_description TEXT,
+  recurrence_type_created_at TEXT,
+  recurrence_type_updated_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS end_types (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  end_type_name TEXT,
+  end_type_description TEXT,
+  end_type_created_at TEXT,
+  end_type_updated_at TEXT
 );
 
 -- Insert Statements for people
 INSERT INTO people ([user_name], [name_prefix], [first_name], [middle_name], [last_name], [dob], [email], [phone], [born_in_county], [born_in_state], [born_in_country], [created_at]), VALUES
   ('Adge', 'Mr.', 'Adriaan', 'Harold', 'Denkers', '1977-11-22T08:45:22-0500', 'adge.denkers@gmail.com', '607-226-0710', 'Albany', 'New York', 'United States', GETDATE()),
-  ('Becky', 'Mrs.', 'Rebecca', 'Lydia', 'Denkers', '1978-08-19T14:02:33-0400', 'rebecca.denkers@gmail.com', '607-316-2604', '304 Cosen Road', 'Oxford', 'NY', '13830', 'United States', 'Chenango', 'New York', 'United States', GETDATE()),
-  ('Fitz', 'Mr.', 'Adriaan', 'Fitzgerald', 'Denkers', '2010-09-08T14:39:11-0400', 'bonniegamer0812@gmail.com', '607-226-3077', '304 Cosen Road', 'Oxford', 'NY', '13830', 'United States', 'Schenectady', 'New York', 'United States', GETDATE());
+  ('Becky', 'Mrs.', 'Rebecca', 'Lydia', 'Denkers', '1978-08-19T14:02:33-0400', 'rebecca.denkers@gmail.com', '607-316-2604', 'Chenango', 'New York', 'United States', GETDATE()),
+  ('Fitz', 'Mr.', 'Adriaan', 'Fitzgerald', 'Denkers', '2010-09-08T14:39:11-0400', 'bonniegamer0812@gmail.com', '607-226-3077', 'Schenectady', 'New York', 'United States', GETDATE()),
+  ('Hannah', 'Ms.', 'Hannah', 'Kathleen', 'Ryan', '2000-01-29', 'hryan7244@gmail.com', '607-244-1318', 'Chenango', 'New York', 'United States', GETDATE());
 
 
 
@@ -47,8 +98,9 @@ CREATE TABLE IF NOT EXISTS addresses (
   [country] TEXT,
 );
 
-INSERT INTO addresses ([address_id], [city], [state], [zip], [country]) VALUES ()
-('304 Cosen Road', 'Oxford', 'NY', '13830', 'United States');
+INSERT INTO addresses ([address_id], [city], [state], [zip], [country]) VALUES 
+('304 Cosen Road', 'Oxford', 'NY', '13830', 'United States'),
+('102 E Main Street', 'Norwich', 'NY', '13815', 'United States');
 
 CREATE TABLE IF NOT EXISTS people_address_mapping (
   [id] INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -57,6 +109,12 @@ CREATE TABLE IF NOT EXISTS people_address_mapping (
   FOREIGN KEY([person_id]) REFERENCES people([id]),
   FOREIGN KEY([address_id]) REFERENCES addresses([id])
 );
+
+INSERT INTO people_address_mapping ([person_id], [address_id]) VALUES
+(1, 1),
+(2, 1),
+(3, 1),
+(4, 2);
 
 -- access_logs Table
 CREATE TABLE IF NOT EXISTS access_logs (
@@ -74,6 +132,92 @@ CREATE TABLE IF NOT EXISTS medical_info (
   blood_type TEXT,
   FOREIGN KEY(person_id) REFERENCES people(id)
 );
+
+CREATE TABLE IF NOT EXISTS medical__bp (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  person_id INTEGER,
+  systolic INTEGER,
+  diastolic INTEGER,
+  notes TEXT,
+  timestamp TEXT,
+  FOREIGN KEY(person_id) REFERENCES people(id)
+);
+
+CREATE TABLE IF NOT EXISTS medical__pulse (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  person_id INTEGER,
+  pulse INTEGER,
+  notes TEXT,
+  timestamp TEXT,
+  FOREIGN KEY(person_id) REFERENCES people(id)
+);
+
+CREATE TABLE IF NOT EXISTS medical__weight (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  person_id INTEGER,
+  weight FLOAT,
+  notes TEXT,
+  timestamp TEXT,
+  FOREIGN KEY(person_id) REFERENCES people(id)
+);
+
+CREATE TABLE IF NOT EXISTS medical__height (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  person_id INTEGER,
+  height FLOAT,
+  notes TEXT,
+  timestamp TEXT,
+  FOREIGN KEY(person_id) REFERENCES people(id)
+);
+
+CREATE TABLE IF NOT EXISTS medical__temperature (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  person_id INTEGER,
+  temperature FLOAT,
+  notes TEXT,
+  timestamp TEXT,
+  FOREIGN KEY(person_id) REFERENCES people(id)
+);
+
+CREATE TABLE IF NOT EXISTS medical__glucose (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  person_id INTEGER,
+  glucose FLOAT,
+  notes TEXT,
+  timestamp TEXT,
+  FOREIGN KEY(person_id) REFERENCES people(id)
+);
+
+CREATE TABLE IF NOT EXISTS medical__cholesterol (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  person_id INTEGER,
+  cholesterol FLOAT,
+  notes TEXT,
+  timestamp TEXT,
+  FOREIGN KEY(person_id) REFERENCES people(id)
+);
+
+CREATE TABLE IF NOT EXISTS medical__oxygen (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  person_id INTEGER,
+  oxygen FLOAT,
+  notes TEXT,
+  timestamp TEXT,
+  FOREIGN KEY(person_id) REFERENCES people(id)
+);
+
+CREATE TABLE IF NOT EXISTS medical__pain (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  person_id INTEGER,
+  pain FLOAT,
+  notes TEXT,
+  timestamp TEXT,
+  FOREIGN KEY(person_id) REFERENCES people(id)
+);
+
+
+
+
 
 CREATE TABLE IF NOT EXISTS conditions (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -221,24 +365,11 @@ INSERT INTO medication_medication_group_mapping (group_id, medication_id) VALUES
 (4, 14),
 (4, 15);
 
-
-
-prescribed_to_id	ndc	brand_name	generic_name	dosage	dosage_units_id	release
-1		Prilosec	omeprazole	40	1	
-1		Wellbutrin	bupropion	300	1	ER
-1		Vyvanse	lisdexamfetamine	60	1	
-1		Effexor	venlafaxine	150	1	XR
-1		Flomax	tamsulosin	0.4	1	
-1		Klonopin	clonazepam	1	1	
-2	42858-0118-30	lidocaine patch	lidocaine transdermal patch	5	1	
-
-
-
 -- medications Table
 CREATE TABLE IF NOT EXISTS medications (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   ndc TEXT,
-  prescription BOOLEAN DEFAULT 1,
+  prescription INTEGER DEFAULT 1,
   prescribed_to_id INTEGER,
   generic_name TEXT,
   brand_name TEXT,
@@ -389,6 +520,7 @@ CREATE TABLE IF NOT EXISTS tasks (
   [assigned_to_id] INTEGER,
   [due] DATETIME,
   [frequency] TEXT,
+  [days_frequency] INTEGER,
   [task_type_id] INTEGER,
   [recurring] INTEGER DEFAULT 0,
   [schedule] TEXT,
